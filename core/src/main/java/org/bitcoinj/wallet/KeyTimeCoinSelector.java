@@ -65,7 +65,7 @@ public class KeyTimeCoinSelector implements CoinSelector {
                     .filter(this::isKeyBeforeCutoff)
                     .collect(Collectors.toList());
             if (filteredCandidates.size() > MAX_SIMULTANEOUS_INPUTS) {
-                log.warn("Transaction inputs ({}) exceed MAX_SIMULTANEOUS_INPUTS limit ({})",
+                log.warn("Transaction inputs ({}) exceed MAX_SIMULTANEOUS_INPUTS limit is exceeded ({})",
                         filteredCandidates.size(), MAX_SIMULTANEOUS_INPUTS);
             }
             return filteredCandidates.stream()
