@@ -60,10 +60,16 @@ public class KeyTimeCoinSelector implements CoinSelector {
     @Override
     public CoinSelection select(Coin target, List<TransactionOutput> candidates) {
         try {
-            return candidates.stream()
+            List<TransactionOutput> filteredCandidates = candidates.stream()
                     .filter(output -> !ignorePending || isConfirmed(output))
                     .filter(this::isKeyBeforeCutoff)
-                    .limit(MAX_SIMULTANEOUS_INPUTS) // TODO: log a warning if limit exceeded?
+                    .collect(Collectors.toList());
+            if (filteredCandidates.size() > MAX_SIMULTANEOUS_INPUTS) {
+                log.warn("Transaction inputs ({}) exceed MAX_SIMULTANEOUS_INPUTS limit ({})",
+                        filteredCandidates.size(), MAX_SIMULTANEOUS_INPUTS);
+            }
+            return filteredCandidates.stream()
+                    .limit(MAX_SIMULTANEOUS_INPUTS)
                     .collect(Collectors.collectingAndThen(StreamUtils.toUnmodifiableList(), CoinSelection::new));
         } catch (ScriptException e) {
             throw new RuntimeException(e);  // We should never have problems understanding scripts in our wallet.
